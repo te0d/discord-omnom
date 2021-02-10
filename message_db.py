@@ -1,6 +1,7 @@
 import discord
 import transaction
 import BTrees.OOBTree
+import ZEO
 import ZODB
 
 from message import Message
@@ -9,7 +10,7 @@ class MessageDatabase:
     def __init__(self):
         # in memory since discord doesn't send updates about messages sent before the bot connects
         # it could be worked around by occasional polling, but not necessary for a POC
-        self._zodb = ZODB.DB(None)
+        self._zodb = ZEO.DB(("localhost", 8090))
 
         connection = self._zodb.open()
         if (not hasattr(connection.root, "messages")):
@@ -31,6 +32,13 @@ class MessageDatabase:
         message = messages[id]
         connection.close()
         return message
+
+    def get_messages(self):
+        connection = self._zodb.open()
+        db_messages = connection.root.messages
+        messages = [(k, db_messages[k].content) for k in db_messages.keys()]
+        connection.close()
+        return messages
 
     def get_count(self):
         connection = self._zodb.open()

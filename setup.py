@@ -9,7 +9,9 @@ setup(
     install_requires=[
         'BTrees',
         'discord.py',
+        'Flask',
         'transaction',
+        'zeo',
         'ZODB',
     ],
 )
